@@ -5,53 +5,53 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
+	"gioui.org/app"
+	"gioui.org/io/system"
+	"gioui.org/layout"
+	"gioui.org/op"
+	"gioui.org/unit"
 	"github.com/Ullaakut/nmap/v2"
-	"github.com/gotk3/gotk3/glib"
-	"github.com/gotk3/gotk3/gtk"
 )
 
 func main() {
-	ds := runNmap()
+	go func() {
+		w := app.NewWindow(
+			app.Size(unit.Dp(800), unit.Dp(400)),
+			app.Title("conn : list all connected devices"),
+		)
 
-	fmt.Printf("connected devices : %d \n", len(ds)-1)
+		ds := runNmap()
+		num := len(ds) - 1
 
-	for i, d := range ds {
-		fmt.Println(i, d)
-	}
-
-	ui()
+		if err := loop(w, num, ds); err != nil {
+			log.Fatal(err)
+		}
+		os.Exit(0)
+	}()
+	app.Main()
 }
 
-func ui() {
-	const appID = "com.abanoubhanna.conn"
-	application, err := gtk.ApplicationNew(appID, glib.APPLICATION_FLAGS_NONE)
+func loop(w *app.Window, num int, ds []string) error {
+	var ops op.Ops
+	for e := range w.Events() {
+		switch e := e.(type) {
+		case system.DestroyEvent:
+			return e.Err
 
-	if err != nil {
-		log.Fatal("Could not create application.", err)
+		case system.FrameEvent:
+			gtx := layout.NewContext(&ops, e)
+			drawTable(gtx, num, ds)
+			e.Frame(gtx.Ops)
+		}
 	}
-	// Application signals available
-	// startup -> sets up the application when it first starts
-	// activate -> shows the default first window of the application (like a new document). This corresponds to the application being launched by the desktop environment.
-	// open -> opens files and shows them in a new window. This corresponds to someone trying to open a document (or documents) using the application from the file browser, or similar.
-	// shutdown ->  performs shutdown tasks
-	// Setup Gtk Application callback signals
-	application.Connect("activate", func() { onActivate(application) })
-	// Run Gtk application
-	os.Exit(application.Run(os.Args))
+	return nil
 }
 
-func onActivate(application *gtk.Application) {
-	// Create ApplicationWindow
-	appWindow, err := gtk.ApplicationWindowNew(application)
-	if err != nil {
-		log.Fatal("Could not create application window.", err)
-	}
-	// Set ApplicationWindow Properties
-	appWindow.SetTitle("conn : list all connected devices")
-	appWindow.SetDefaultSize(700, 800)
-	appWindow.Show()
+func drawTable(gtx layout.Context, num int, ds []string) {
+	fmt.Println(strconv.Itoa(num), ds[0])
 }
 
 func runNmap() []string {
