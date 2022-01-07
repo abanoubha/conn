@@ -2,7 +2,10 @@ module github.com/abanoubha/conn
 
 go 1.17
 
-require github.com/Ullaakut/nmap/v2 v2.2.0
+require (
+	github.com/Ullaakut/nmap/v2 v2.2.0
+	github.com/gotk3/gotk3 v0.6.1
+)
 
 require (
 	github.com/pkg/errors v0.9.1 // indirect
