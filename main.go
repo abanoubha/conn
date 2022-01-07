@@ -20,6 +20,8 @@ func main() {
 	for i, d := range ds {
 		fmt.Println(i, d)
 	}
+
+	ui()
 }
 
 func ui() {
