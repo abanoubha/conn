@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/Ullaakut/nmap/v2"
@@ -15,16 +16,17 @@ import (
 func main() {
 	ds := runNmap()
 
-	fmt.Printf("connected devices : %d \n", len(ds)-1)
+	num := len(ds) - 1
+	fmt.Printf("connected devices : %d \n", num)
 
 	for i, d := range ds {
 		fmt.Println(i, d)
 	}
 
-	ui()
+	ui(num, ds)
 }
 
-func ui() {
+func ui(num int, ds []string) {
 	const appID = "com.abanoubhanna.conn"
 	application, err := gtk.ApplicationNew(appID, glib.APPLICATION_FLAGS_NONE)
 
@@ -37,20 +39,53 @@ func ui() {
 	// open -> opens files and shows them in a new window. This corresponds to someone trying to open a document (or documents) using the application from the file browser, or similar.
 	// shutdown ->  performs shutdown tasks
 	// Setup Gtk Application callback signals
-	application.Connect("activate", func() { onActivate(application) })
+	application.Connect("activate", func() { onActivate(application, num, ds) })
 	// Run Gtk application
 	os.Exit(application.Run(os.Args))
 }
 
-func onActivate(application *gtk.Application) {
+func onActivate(application *gtk.Application, num int, ds []string) {
 	// Create ApplicationWindow
 	appWindow, err := gtk.ApplicationWindowNew(application)
 	if err != nil {
 		log.Fatal("Could not create application window.", err)
 	}
+
 	// Set ApplicationWindow Properties
 	appWindow.SetTitle("conn : list all connected devices")
 	appWindow.SetDefaultSize(700, 800)
+
+	grid, err := gtk.GridNew()
+
+	if err != nil {
+		fmt.Println("errrrrrrrrrrr", err.Error())
+	}
+
+	grid.SetColumnSpacing(20)
+	grid.SetRowSpacing(6)
+
+	lbl, _ := gtk.LabelNew("# : ")
+	grid.Attach(lbl, 0, 0, 1, 1)
+
+	lbl, _ = gtk.LabelNew(strconv.Itoa(num))
+	grid.Attach(lbl, 1, 0, 1, 1)
+
+	lbl, _ = gtk.LabelNew("#")
+	grid.Attach(lbl, 0, 1, 1, 1)
+
+	lbl, _ = gtk.LabelNew("IP")
+	grid.Attach(lbl, 1, 1, 1, 1)
+
+	for i, d := range ds {
+		lbl, _ = gtk.LabelNew(strconv.Itoa(i))
+		grid.Attach(lbl, 0, i+1, 1, 1)
+
+		lbl, _ = gtk.LabelNew(d)
+		grid.Attach(lbl, 1, i+1, 1, 1)
+	}
+
+	appWindow.Add(grid)
+
 	appWindow.Show()
 }
 
