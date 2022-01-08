@@ -9,10 +9,12 @@ import (
 	"time"
 
 	"gioui.org/app"
+	"gioui.org/font/gofont"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
+	"gioui.org/widget/material"
 	"github.com/Ullaakut/nmap/v2"
 )
 
@@ -36,6 +38,7 @@ func main() {
 
 func loop(w *app.Window, num int, ds []string) error {
 	var ops op.Ops
+	th := material.NewTheme(gofont.Collection())
 	for e := range w.Events() {
 		switch e := e.(type) {
 		case system.DestroyEvent:
@@ -43,14 +46,21 @@ func loop(w *app.Window, num int, ds []string) error {
 
 		case system.FrameEvent:
 			gtx := layout.NewContext(&ops, e)
-			drawTable(gtx, num, ds)
+			drawTable(gtx, th, num, ds)
 			e.Frame(gtx.Ops)
 		}
 	}
 	return nil
 }
 
-func drawTable(gtx layout.Context, num int, ds []string) {
+func drawTable(gtx layout.Context, th *material.Theme, num int, ds []string) {
+
+	material.Body1(th, "connected devices # "+strconv.Itoa(num)).Layout(gtx)
+
+	//(th, )
+	material.Body2(th, "#").Layout(gtx)
+	material.Body2(th, "IP").Layout(gtx)
+
 	fmt.Println(strconv.Itoa(num), ds[0])
 }
 
