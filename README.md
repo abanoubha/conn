@@ -2,10 +2,12 @@
 
 list all WiFi connected devices
 
-- tui : terminal UI
-- gtk : gtk4 GUI
-- gio : Gio GUI
-- flutter : Flutter GUI
+## branches
+
+- `tui` : terminal UI
+- `gtk` : gtk4 GUI
+- `gio` : Gio GUI
+- `flutter` : Flutter GUI
 
 ## Idea
 
