@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"image"
 	"log"
 	"os"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/unit"
+	"gioui.org/widget"
 	"gioui.org/widget/material"
 	"github.com/Ullaakut/nmap/v2"
 )
@@ -57,11 +59,24 @@ func drawTable(gtx layout.Context, th *material.Theme, num int, ds []string) {
 
 	material.Body1(th, "connected devices # "+strconv.Itoa(num)).Layout(gtx)
 
-	//(th, )
-	material.Body2(th, "#").Layout(gtx)
-	material.Body2(th, "IP").Layout(gtx)
+	space := func(gtx layout.Context, index int) layout.Dimensions {
+		return layout.Dimensions{Size: image.Point{
+			X: gtx.Constraints.Max.X,
+			Y: gtx.Px(unit.Dp(20)),
+		}}
+	}
 
-	fmt.Println(strconv.Itoa(num), ds[0])
+	var list widget.List
+	list.Axis = layout.Vertical
+	elements := 32
+	materialList := material.List(th, &list)
+	gtx.Px(materialList.Width(gtx.Metric))
+
+	materialList.AnchorStrategy = material.Occupy
+	materialList.Layout(gtx, elements, space)
+
+	// material.Body2(th, "#").Layout(gtx)
+	// material.Body2(th, "IP").Layout(gtx)
 }
 
 func runNmap() []string {
