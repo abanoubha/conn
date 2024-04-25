@@ -3,80 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"image"
 	"log"
-	"os"
-	"strconv"
 	"time"
 
-	"gioui.org/app"
-	"gioui.org/font/gofont"
-	"gioui.org/io/system"
-	"gioui.org/layout"
-	"gioui.org/op"
-	"gioui.org/unit"
-	"gioui.org/widget"
-	"gioui.org/widget/material"
 	"github.com/Ullaakut/nmap/v2"
 )
 
 func main() {
-	go func() {
-		w := app.NewWindow(
-			app.Size(unit.Dp(800), unit.Dp(400)),
-			app.Title("conn : list all connected devices"),
-		)
+	println("List all connected devices")
+	ds := runNmap()
+	num := len(ds) - 1
+	fmt.Printf("%d connected devices\n", num)
 
-		ds := runNmap()
-		num := len(ds) - 1
-
-		if err := loop(w, num, ds); err != nil {
-			log.Fatal(err)
-		}
-		os.Exit(0)
-	}()
-	app.Main()
-}
-
-func loop(w *app.Window, num int, ds []string) error {
-	var ops op.Ops
-	th := material.NewTheme(gofont.Collection())
-	for e := range w.Events() {
-		switch e := e.(type) {
-		case system.DestroyEvent:
-			return e.Err
-
-		case system.FrameEvent:
-			gtx := layout.NewContext(&ops, e)
-			drawTable(gtx, th, num, ds)
-			e.Frame(gtx.Ops)
-		}
+	for i, v := range ds {
+		fmt.Printf("%d  %v\n", i, v)
 	}
-	return nil
-}
-
-func drawTable(gtx layout.Context, th *material.Theme, num int, ds []string) {
-
-	material.Body1(th, "connected devices # "+strconv.Itoa(num)).Layout(gtx)
-
-	space := func(gtx layout.Context, index int) layout.Dimensions {
-		return layout.Dimensions{Size: image.Point{
-			X: gtx.Constraints.Max.X,
-			Y: gtx.Px(unit.Dp(20)),
-		}}
-	}
-
-	var list widget.List
-	list.Axis = layout.Vertical
-	elements := 32
-	materialList := material.List(th, &list)
-	gtx.Px(materialList.Width(gtx.Metric))
-
-	materialList.AnchorStrategy = material.Occupy
-	materialList.Layout(gtx, elements, space)
-
-	// material.Body2(th, "#").Layout(gtx)
-	// material.Body2(th, "IP").Layout(gtx)
 }
 
 func runNmap() []string {
