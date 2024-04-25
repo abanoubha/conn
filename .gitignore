@@ -1,3 +1,5 @@
-main
+# executable
+conn
 
+# macOS specific files
 .DS_Store
