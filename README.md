@@ -32,3 +32,9 @@ Nmap scan report for 192.168.1.10
 Host is up (0.014s latency).
 Nmap done: 256 IP addresses (6 hosts up) scanned in 8.08 seconds
 ```
+
+## commands
+
+```sh
+go mod tidy && go build -o conn main.go && ./conn
+```
